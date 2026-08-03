@@ -314,11 +314,7 @@ if(EN_USB_HOST)
         ${SRC}/USBHost/HostDriver/PS3/PS3.cpp
         ${SRC}/USBHost/HostDriver/N64/N64.cpp
         ${SRC}/USBHost/HostDriver/HIDGeneric/HIDGeneric.cpp
-		#added
-		${SRC}/USBHost/HostDriver/Keyboard/Keyboard.cpp	
 
-		#parser, added keyboard
-		${SRC}/USBHost/HIDParser/HIDKeyboard.cpp
         ${SRC}/USBHost/HIDParser/HIDJoystick.cpp
         ${SRC}/USBHost/HIDParser/HIDReportDescriptor.cpp
         ${SRC}/USBHost/HIDParser/HIDReportDescriptorElements.cpp

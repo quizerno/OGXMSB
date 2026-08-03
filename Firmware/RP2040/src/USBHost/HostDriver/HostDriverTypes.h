@@ -2,7 +2,7 @@
 #define HOST_DRIVER_TYPES_H
 
 #include <cstdint>
-
+//added keyboard type
 enum class HostDriverType
 {
     UNKNOWN = 0,
@@ -21,7 +21,8 @@ enum class HostDriverType
     XBOX360W,
     XBOX360,
     XBOX360_CHATPAD,
-    HID_GENERIC
+    HID_GENERIC,
+	HID_KEYBOARD,
 };
 
 #endif // HOST_DRIVER_TYPES_H

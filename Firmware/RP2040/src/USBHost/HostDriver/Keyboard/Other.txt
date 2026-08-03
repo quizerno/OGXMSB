@@ -1,0 +1,143 @@
+#include <cstring>
+#include <memory>
+
+#include "USBHost/HostDriver/Keyboard/KeyboardHost.h" // your header
+#include "USBHost/HIDParser/HIDKeyboard.h"
+#include "tuh.h"
+
+// Hold previous report to avoid duplicates, same pattern as other drivers
+static std::array<uint8_t, 0x40> prev_report_in_{0};
+
+static inline void map_keycode_to_gamepad(uint8_t keycode, Gamepad& gamepad, Gamepad::PadIn &gp_in)
+{
+    // USB HID keyboard usage IDs: 0x04 = 'a', 0x05 = 'b', ... 0x1A = 'w', 0x1B = 'x', 0x1C = 'y', 0x1D = 'z'
+    // Arrow key usages commonly: 0x4F=Right, 0x50=Left, 0x51=Down, 0x52=Up (validate for your keyboard if needed)
+    switch (keycode)
+    {
+        // WASD
+        case 0x1A: // w
+            gp_in.dpad |= gamepad.MAP_DPAD_UP;
+            break;
+        case 0x16: // s
+            gp_in.dpad |= gamepad.MAP_DPAD_DOWN;
+            break;
+        case 0x04: // a  (note: 0x04 is 'a')
+            gp_in.dpad |= gamepad.MAP_DPAD_LEFT;
+            break;
+        case 0x07: // d  (0x07 is 'd')
+            gp_in.dpad |= gamepad.MAP_DPAD_RIGHT;
+            break;
+
+        // Arrow keys (common usages)
+        case 0x4F: // Right Arrow
+            gp_in.dpad |= gamepad.MAP_DPAD_RIGHT;
+            break;
+        case 0x50: // Left Arrow
+            gp_in.dpad |= gamepad.MAP_DPAD_LEFT;
+            break;
+        case 0x51: // Down Arrow
+            gp_in.dpad |= gamepad.MAP_DPAD_DOWN;
+            break;
+        case 0x52: // Up Arrow
+            gp_in.dpad |= gamepad.MAP_DPAD_UP;
+            break;
+
+        // Buttons / actions
+        case 0x2C: // Space -> A
+            gp_in.buttons |= gamepad.MAP_BUTTON_A;
+            break;
+        case 0x29: // Escape -> BACK
+            gp_in.buttons |= gamepad.MAP_BUTTON_BACK;
+            break;
+        case 0x28: // Enter -> START
+            gp_in.buttons |= gamepad.MAP_BUTTON_START;
+            break;
+
+        // A few letter mappings for face buttons (tweak to taste)
+        case 0x1B: // x
+            gp_in.buttons |= gamepad.MAP_BUTTON_B;
+            break;
+        case 0x1D: // z
+            gp_in.buttons |= gamepad.MAP_BUTTON_X;
+            break;
+        case 0x1C: // y
+            gp_in.buttons |= gamepad.MAP_BUTTON_Y;
+            break;
+
+        // Modifiers could map to shoulder buttons if you want:
+        default:
+            break;
+    }
+}
+
+void KeyboardHost::initialize(Gamepad& gamepad, uint8_t address, uint8_t instance, const uint8_t* report_desc, uint16_t desc_len)
+{
+    // Keep a simple parser instance. We could use HIDReportDescriptor to detect layout.
+    static std::shared_ptr<HIDReportDescriptor> desc = nullptr;
+    if (report_desc && desc_len)
+    {
+        desc = std::make_shared<HIDReportDescriptor>(report_desc, desc_len);
+    }
+    // request first IN
+    tuh_hid_receive_report(address, instance);
+}
+
+void KeyboardHost::process_report(Gamepad& gamepad, uint8_t address, uint8_t instance, const uint8_t* report, uint16_t len)
+{
+    if (!report || len == 0) {
+        tuh_hid_receive_report(address, instance);
+        return;
+    }
+
+    // Avoid duplicate reports
+    if (std::memcmp(prev_report_in_.data(), report, std::min<size_t>(len, prev_report_in_.size())) == 0)
+    {
+        tuh_hid_receive_report(address, instance);
+        return;
+    }
+    // store
+    std::memset(prev_report_in_.data(), 0, prev_report_in_.size());
+    std::memcpy(prev_report_in_.data(), report, std::min<size_t>(len, prev_report_in_.size()));
+
+    // Try boot-keyboard parser
+    HIDKeyboardData kb;
+    HIDKeyboard parser(nullptr);
+    // attempt boot protocol parse (parser.parseData supports reports >= 8)
+    bool ok = parser.parseData(const_cast<uint8_t*>(report), len, &kb);
+
+    if (!ok) {
+        // Not parseable as boot keyboard — request next report and return
+        tuh_hid_receive_report(address, instance);
+        return;
+    }
+
+    Gamepad::PadIn gp_in; // zero-initialized
+    // Map modifier bits -> shoulder buttons (optional)
+    // modifier bit mask: bit1 = LeftShift, bit5 = RightShift, etc.
+    if (kb.modifiers & (1 << 1) || kb.modifiers & (1 << 5)) {
+        // a shift -> map to LB for example
+        gp_in.buttons |= gamepad.MAP_BUTTON_LB;
+    }
+    if (kb.modifiers & (1 << 0) || kb.modifiers & (1 << 4)) {
+        // ctrl -> map to RB
+        gp_in.buttons |= gamepad.MAP_BUTTON_RB;
+    }
+
+    // Map each pressed keycode
+    for (uint8_t i = 0; i < kb.key_count; ++i)
+    {
+        map_keycode_to_gamepad(kb.keys[i], gamepad, gp_in);
+    }
+
+    // Submit mapped input
+    gamepad.set_pad_in(gp_in);
+
+    // Queue next IN
+    tuh_hid_receive_report(address, instance);
+}
+
+bool KeyboardHost::send_feedback(Gamepad& /*gamepad*/, uint8_t /*address*/, uint8_t /*instance*/)
+{
+    // Keyboards typically don't require periodic feedback
+    return true;
+}

@@ -3,27 +3,8 @@
 #include <pico/time.h>
 
 #include "Descriptors/XInput.h"
-#include "Descriptors/Keyboard.h"
 #include "USBDevice/DeviceDriver/XboxOG/tud_xid/tud_xid.h"
 #include "USBDevice/DeviceDriver/XboxOG/XboxOG_SB.h"
-
-
-//XboxOG_SB.cpp
-
-//added
-/* #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#include "hardware/clocks.h"
-#include "pico/stdlib.h"
-#include "pico/multicore.h"
-#include "pico/bootrom.h"
-
-#include "pio_usb.h"
-#include "tusb.h" */
-//added
-
 
 static constexpr std::array<XboxOGSBDevice::ButtonMap, 9> GP_MAP = 
 {{
@@ -32,7 +13,7 @@ static constexpr std::array<XboxOGSBDevice::ButtonMap, 9> GP_MAP =
     {Gamepad::BUTTON_R3,      XboxOG::SB::Buttons0::RIGHTJOYLOCKON,     0},
     {Gamepad::BUTTON_B,       XboxOG::SB::Buttons0::RIGHTJOYLOCKON,     0},
     {Gamepad::BUTTON_RB,      XboxOG::SB::Buttons0::RIGHTJOYMAINWEAPON, 0},
-    {Keyboard::KEY_A,       XboxOG::SB::Buttons0::RIGHTJOYMAINWEAPON, 0},
+    {Gamepad::BUTTON_A,       XboxOG::SB::Buttons0::RIGHTJOYMAINWEAPON, 0},
     {Gamepad::BUTTON_SYS,     XboxOG::SB::Buttons0::EJECT,              0},
     {Gamepad::BUTTON_L3,      XboxOG::SB::Buttons2::LEFTJOYSIGHTCHANGE, 2},
     {Gamepad::BUTTON_Y,       XboxOG::SB::Buttons1::CHAFF,              1}

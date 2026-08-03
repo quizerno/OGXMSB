@@ -38,7 +38,9 @@
 #include "USBHost/HostDriver/XInput/Xbox360W.h"
 #include "USBHost/HostDriver/XInput/XboxOG.h"
 #include "USBHost/HostDriver/N64/N64.h"
+#include "USBHost/HostDriver/Keyboard/Keyboard.h"
 #include "USBHost/HostDriver/HIDGeneric/HIDGeneric.h"
+
 
 /** Per USB device: TinyUSB HID instance indices and XInput instance indices are separate namespaces
  *  (both often start at 0). Reserve [0 .. MAX_GAMEPADS-1] for HID and [MAX_GAMEPADS ..] for XInput.
@@ -201,6 +203,14 @@ public:
 				debug_printf("XBOX360W Loaded\n"); fflush(stdout);
 				interface.driver = std::make_unique<Xbox360WHost>(gp_idx);
 				break;
+				//added
+			case HostDriverType::HID_KEYBOARD:
+				debug_printf("HID_KEYBOARD Loaded\n"); fflush(stdout);
+				interface.driver = std::make_unique<KeyboardHost>(gp_idx);
+				break;
+/* 			case HostDriverType::HID_GENERIC:
+				iface.driver = std::make_unique<HIDHost>(gp_idx);
+				break;	 */			
 			default:
 				if (is_hid_gamepad(report_desc, desc_len))
 				{
