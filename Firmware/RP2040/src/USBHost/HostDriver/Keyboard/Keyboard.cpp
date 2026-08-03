@@ -4,6 +4,7 @@
 
 #include "USBHost/HostDriver/Keyboard/Keyboard.h"
 #include "USBHost/HIDParser/HIDKeyboard.h"
+#include "USBHost/HIDParser/HIDReportDescriptor.h"
 #include "Gamepad/Gamepad.h"
 #include "Descriptors/Keyboard.h"
 //#include "tuh.h"
@@ -74,6 +75,25 @@ static inline void map_keycode_to_gamepad(uint8_t keycode, Gamepad& gamepad, Gam
     }
 }
 
+
+
+void KeyboardHost::initialize(Gamepad& gamepad, uint8_t address, uint8_t instance, const uint8_t* report_desc, uint16_t desc_len)
+{
+    // Keep a simple parser instance. We could use HIDReportDescriptor to detect layout.
+    static std::shared_ptr<HIDReportDescriptor> desc = nullptr;
+    if (report_desc && desc_len)
+    {
+        desc = std::make_shared<HIDReportDescriptor>(report_desc, desc_len);
+    }
+    // request first IN
+    tuh_hid_receive_report(address, instance);
+}
+
+bool KeyboardHost::send_feedback(Gamepad& /*gamepad*/, uint8_t /*address*/, uint8_t /*instance*/)
+{
+    // Keyboards typically don't require periodic feedback
+    return true;
+}
 
 
 void KeyboardHost::process_report(Gamepad& gamepad, uint8_t address, uint8_t instance, const uint8_t* report, uint16_t len)
