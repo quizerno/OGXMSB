@@ -1,6 +1,7 @@
 #include <cstring>
 #include <array>
 #include <memory>
+#include <algorithm>
 
 #include "USBHost/HostDriver/Keyboard/Keyboard.h"
 #include "USBHost/HIDParser/HIDKeyboard.h"
@@ -112,7 +113,7 @@ void KeyboardHost::process_report(Gamepad& gamepad, uint8_t address, uint8_t ins
 
     // Parse boot keyboard layout into raw usage IDs
     HIDKeyboardData kb;
-    HIDKeyboard parser(nullptr);
+    HIDKeyboard parser(desc);
     if (!parser.parseData(const_cast<uint8_t*>(report), len, &kb)) {
         tuh_hid_receive_report(address, instance);
         return;
