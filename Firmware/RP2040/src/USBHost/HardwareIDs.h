@@ -440,6 +440,10 @@ static const HardwareID N64_IDS[] =
     {0x057E, 0x2019}, // NSO N64 Controller
     {0x1234, 0x0004}, // RetroUSB N64 RetroPort
 };
+static const HardwareID KEYBOARD_IDS[] =
+{
+    {0x0A34, 0x0102}, // TG3
+};
 
 struct HostTypeMap
 {
