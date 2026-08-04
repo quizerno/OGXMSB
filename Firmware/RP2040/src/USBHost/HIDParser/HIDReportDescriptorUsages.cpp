@@ -136,6 +136,8 @@ HIDUsageType convert_usage_page(uint32_t usage_page)
             return HIDUsageType::GenericDesktop;
         case USAGE_PAGE_VendorDefined:
             return HIDUsageType::VendorDefined;
+        case USAGE_PAGE_Keyboard:      // treat keyboard usages as Button-like inputs
+            return HIDUsageType::Button;
         default:
             return HIDUsageType::Unknown;
     }
