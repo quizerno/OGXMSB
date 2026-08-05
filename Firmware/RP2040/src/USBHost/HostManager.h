@@ -782,6 +782,7 @@ private:
 		{
 			if (report_desc[i] != start_bytes[i])
 			{
+				debug_printf("is_hid_gamepad: byte %u = %02X, wanted %02X\n", (unsigned)i, report_desc[i], start_bytes[i]);
 				return false;
 			}
 		}
