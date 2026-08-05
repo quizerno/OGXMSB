@@ -39,6 +39,7 @@
 #include "USBHost/HostDriver/XInput/XboxOG.h"
 #include "USBHost/HostDriver/N64/N64.h"
 #include "USBHost/HostDriver/HIDGeneric/HIDGeneric.h"
+#include "USBHost/HostDriver/Keyboard/Keyboard.h"
 
 /** Per USB device: TinyUSB HID instance indices and XInput instance indices are separate namespaces
  *  (both often start at 0). Reserve [0 .. MAX_GAMEPADS-1] for HID and [MAX_GAMEPADS ..] for XInput.
@@ -797,7 +798,32 @@ private:
 		}
 		return nullptr;
 	}
+
+
+ 	inline bool is_hid_keyboard(const uint8_t* report_desc, uint16_t desc_len)
+ 	{
+ 		// Typical boot protocol keyboard descriptor starts with: Usage Page (Generic Desktop), Usage (Keyboard)
+ 		std::array<uint8_t, 6> start_bytes = { 0x05, 0x01, 0x09, 0x06, 0xA1, 0x01 };
+ 		if (desc_len < start_bytes.size())
+ 		{
+ 			return false;
+ 		}
+ 		for (size_t i = 0; i < start_bytes.size(); ++i)
+ 		{
+ 			if (report_desc[i] != start_bytes[i])
+ 			{
+ 				return false;
+ 			}
+ 		}
+ 		return true;
+ 	}
+
+
+
+
 };
+
+
 
 #endif // _HOST_MANAGER_H_
 
@@ -1166,20 +1192,3 @@ private:
 
 // #endif // _HOST_MANAGER_H_
  
- 	inline bool is_hid_keyboard(const uint8_t* report_desc, uint16_t desc_len)
- 	{
- 		// Typical boot protocol keyboard descriptor starts with: Usage Page (Generic Desktop), Usage (Keyboard)
- 		std::array<uint8_t, 6> start_bytes = { 0x05, 0x01, 0x09, 0x06, 0xA1, 0x01 };
- 		if (desc_len < start_bytes.size())
- 		{
- 			return false;
- 		}
- 		for (size_t i = 0; i < start_bytes.size(); ++i)
- 		{
- 			if (report_desc[i] != start_bytes[i])
- 			{
- 				return false;
- 			}
- 		}
- 		return true;
- 	}
