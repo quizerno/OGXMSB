@@ -440,10 +440,14 @@ static const HardwareID N64_IDS[] =
     {0x057E, 0x2019}, // NSO N64 Controller
     {0x1234, 0x0004}, // RetroUSB N64 RetroPort
 };
+
+
 static const HardwareID KEYBOARD_IDS[] =
 {
     {0x0A34, 0x0102}, // TG3
+	{0x1C4F, 0x0046}, //Switch USB Keyboard
 };
+
 
 struct HostTypeMap
 {
@@ -463,6 +467,7 @@ static const HostTypeMap HOST_TYPE_MAP[] =
     { SWITCH_PRO_IDS, sizeof(SWITCH_PRO_IDS) / sizeof(HardwareID), HostDriverType::SWITCH_PRO },
     { PSCLASSIC_IDS, sizeof(PSCLASSIC_IDS) / sizeof(HardwareID), HostDriverType::PSCLASSIC },
     { N64_IDS, sizeof(N64_IDS) / sizeof(HardwareID), HostDriverType::N64 },
+	{ KEYBOARD_IDS, sizeof(KEYBOARD_IDS) / sizeof(HardwareID), HostDriverType::HID_KEYBOARD },
 };
 
 #endif // _HW_ID_H_
