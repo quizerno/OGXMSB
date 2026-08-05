@@ -13,6 +13,7 @@
 #include "class/hid/hid_host.h"
 
 static std::array<uint8_t, 0x40> prev_report_in_{0};
+static std::shared_ptr<HIDReportDescriptor> desc = nullptr;
 
 static inline void map_keycode_to_gamepad(uint8_t keycode, Gamepad& gamepad, Gamepad::PadIn &gp_in)
 {
@@ -81,7 +82,7 @@ static inline void map_keycode_to_gamepad(uint8_t keycode, Gamepad& gamepad, Gam
 void KeyboardHost::initialize(Gamepad& gamepad, uint8_t address, uint8_t instance, const uint8_t* report_desc, uint16_t desc_len)
 {
     // Keep a simple parser instance. We could use HIDReportDescriptor to detect layout.
-    static std::shared_ptr<HIDReportDescriptor> desc = nullptr;
+    
     if (report_desc && desc_len)
     {
         desc = std::make_shared<HIDReportDescriptor>(report_desc, desc_len);
