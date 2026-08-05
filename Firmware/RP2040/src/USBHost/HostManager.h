@@ -39,7 +39,7 @@
 #include "USBHost/HostDriver/XInput/XboxOG.h"
 #include "USBHost/HostDriver/N64/N64.h"
 #include "USBHost/HostDriver/HIDGeneric/HIDGeneric.h"
-#include "USBHost/HostDriver/Keyboard/Keyboard.h
+#include "USBHost/HostDriver/Keyboard/Keyboard.h"
 
 /** Per USB device: TinyUSB HID instance indices and XInput instance indices are separate namespaces
  *  (both often start at 0). Reserve [0 .. MAX_GAMEPADS-1] for HID and [MAX_GAMEPADS ..] for XInput.
